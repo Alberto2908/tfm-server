@@ -22,3 +22,14 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Secretos locales (API keys, credenciales) - nunca deben commitearse
+application-local.properties
+.env
+
+# Build de Maven - no debe versionarse
+target/
+
+# Checkpoint de progreso de las importaciones puntuales de NVD - es estado
+# de ejecución local, no código
+cve-import-progress.properties
