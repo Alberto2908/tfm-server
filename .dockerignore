@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Maven build output
+target/
+!target/tfm.vulnerabilidades-0.0.1-SNAPSHOT.jar
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+application-local.properties
+
+# Docs
+README.md
+*.md
