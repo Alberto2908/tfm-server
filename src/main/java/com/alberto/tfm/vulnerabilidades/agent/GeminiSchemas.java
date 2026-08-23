@@ -1,40 +1,38 @@
 package com.alberto.tfm.vulnerabilidades.agent;
 
-import com.anthropic.core.JsonValue;
-import com.anthropic.models.messages.JsonOutputFormat;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Esquemas JSON (output_config.format) usados para forzar la salida estructurada
- * de los dos agentes. Los valores de severity/category deben coincidir exactamente
- * con las opciones del formulario "anadir" en tfm-web.
+ * Esquemas (generationConfig.responseSchema) usados para forzar la salida
+ * estructurada de los agentes. Gemini usa un subconjunto de OpenAPI 3.0: los
+ * tipos van en mayúsculas y no admite "additionalProperties". Los valores de
+ * severity/category deben coincidir exactamente con las opciones del
+ * formulario "anadir" en tfm-web.
  */
-final class AnthropicSchemas {
+final class GeminiSchemas {
 
     static final List<String> SEVERITIES = List.of("Crítica", "Alta", "Media", "Baja", "Informativa");
     static final List<String> CATEGORIES = List.of(
             "Injection", "XSS", "CSRF", "Authentication", "Authorization", "Data Exposure", "DoS", "Other");
 
-    private AnthropicSchemas() {
+    private GeminiSchemas() {
     }
 
-    static JsonOutputFormat.Schema discoveryDraftSchema() {
+    static Map<String, Object> discoveryDraftSchema() {
         return buildSchema(draftProperties(), draftRequired());
     }
 
     /** Igual que discoveryDraftSchema, pero envuelto en un array "vulnerabilities" para permitir extraer varias de un mismo documento. */
-    static JsonOutputFormat.Schema documentIngestSchema() {
+    static Map<String, Object> documentIngestSchema() {
         Map<String, Object> itemSchema = new LinkedHashMap<>();
-        itemSchema.put("type", "object");
+        itemSchema.put("type", "OBJECT");
         itemSchema.put("properties", draftProperties());
         itemSchema.put("required", draftRequired());
-        itemSchema.put("additionalProperties", false);
 
         Map<String, Object> vulnerabilitiesArray = new LinkedHashMap<>();
-        vulnerabilitiesArray.put("type", "array");
+        vulnerabilitiesArray.put("type", "ARRAY");
         vulnerabilitiesArray.put("items", itemSchema);
 
         Map<String, Object> properties = new LinkedHashMap<>();
@@ -64,7 +62,7 @@ final class AnthropicSchemas {
                 "affectedEndpoint", "impact", "mitigation");
     }
 
-    static JsonOutputFormat.Schema verificationResultSchema() {
+    static Map<String, Object> verificationResultSchema() {
         Map<String, Object> properties = new LinkedHashMap<>();
         properties.put("technicallyValid", booleanProperty());
         properties.put("duplicate", booleanProperty());
@@ -75,30 +73,29 @@ final class AnthropicSchemas {
         return buildSchema(properties, required);
     }
 
-    private static JsonOutputFormat.Schema buildSchema(Map<String, Object> properties, List<String> required) {
-        return JsonOutputFormat.Schema.builder()
-                .putAdditionalProperty("type", JsonValue.from("object"))
-                .putAdditionalProperty("properties", JsonValue.from(properties))
-                .putAdditionalProperty("required", JsonValue.from(required))
-                .putAdditionalProperty("additionalProperties", JsonValue.from(false))
-                .build();
+    private static Map<String, Object> buildSchema(Map<String, Object> properties, List<String> required) {
+        Map<String, Object> schema = new LinkedHashMap<>();
+        schema.put("type", "OBJECT");
+        schema.put("properties", properties);
+        schema.put("required", required);
+        return schema;
     }
 
     private static Map<String, Object> stringProperty() {
         Map<String, Object> property = new LinkedHashMap<>();
-        property.put("type", "string");
+        property.put("type", "STRING");
         return property;
     }
 
     private static Map<String, Object> booleanProperty() {
         Map<String, Object> property = new LinkedHashMap<>();
-        property.put("type", "boolean");
+        property.put("type", "BOOLEAN");
         return property;
     }
 
     private static Map<String, Object> enumProperty(List<String> values) {
         Map<String, Object> property = new LinkedHashMap<>();
-        property.put("type", "string");
+        property.put("type", "STRING");
         property.put("enum", values);
         return property;
     }

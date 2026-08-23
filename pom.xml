@@ -46,10 +46,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- Jackson 2: Spring Boot 4 trae internamente Jackson 3 (tools.jackson.*)
+		     para la serializacion HTTP, pero el codigo del importador/exportador y
+		     del agente de IA usa la API clasica com.fasterxml.jackson.databind.
+		     Antes llegaba de forma transitiva vía el SDK de Anthropic; ahora se
+		     declara explícitamente al haberlo retirado. -->
 		<dependency>
-			<groupId>com.anthropic</groupId>
-			<artifactId>anthropic-java</artifactId>
-			<version>2.48.0</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.21.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.librepdf</groupId>
